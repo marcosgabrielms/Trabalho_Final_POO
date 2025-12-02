@@ -2,6 +2,7 @@ import * as fs from 'fs';  // File System (Salvar e Recuperar dados do arquivo)
 import { throwDeprecation } from 'process';
 import * as  readline from 'readline';
 
+// Enumeração //
 enum TipoAcao {
     ATAQUE = "Ataque",
     MAGIA = "Magia",
@@ -11,7 +12,7 @@ enum TipoAcao {
     CURA = "Cura",
     DEFESA = "Defesa",
 }
-
+// Ação //
 class Acao {
     origem: string;
     alvo: string;
@@ -19,7 +20,7 @@ class Acao {
     valorDano: number;
     dataHora: Date;
 
-    constructor(origem: string, alvo: string, tipo: TipoAcao, valorDano: number, dataHora: Date) {
+    constructor(origem: string, alvo: string, tipo: TipoAcao, valorDano: number) {
         this.origem = origem;
         this.alvo = alvo;
         this.tipo = tipo;
@@ -33,7 +34,7 @@ class Acao {
         ${this.alvo} (Valor: ${this.valorDano.toFixed(1)})`;
     }
 }
-
+// Classe Abstrata Personagem //
 abstract class Personagem {
     protected _id: number;
     protected _nome: string;
@@ -43,7 +44,7 @@ abstract class Personagem {
     protected _defesaBase: number;
     protected _historico: Acao[] = []; //Array para guardar o histórico de ações
 
-    constructor(id: number, nome: string, vida: number, ataque: number, defesa: number, vidaInicial: number = 100) {
+    constructor(id: number, nome: string, ataque: number, defesa: number, vidaInicial: number = 100) {
         this._id = id;
         this._nome = nome;
 
@@ -76,5 +77,90 @@ abstract class Personagem {
 
     public registrarAcao(acao: Acao): void {
         this._historico.push(acao);
+    }
+}
+
+// Subclasses //
+
+// Guerreiro // 
+
+class Guerreiro extends Personagem {
+    constructor(id: number, nome: string, ataque: number, defesa: number, vidaInicial: number = 100) {
+        super(id, nome, ataque, defesa, vidaInicial)
+    }
+    atacar(alvo: Personagem): void {
+        let danoCalculado = this._ataqueBase;
+        const mensagens: string[] = [];
+
+        // 30% de dano se vida < 30%
+        if (this._vida < (this._vidaMaxima * 0.3)){
+            danoCalculado = danoCalculado * 1.3
+            mensagens.push("Fúria Ativada!")
+        }
+        // Bônus contra Mago
+        if (alvo instanceof Mago) {
+            danoCalculado += 3;
+            mensagens.push("Bônus: Caçador de Magos (+3)")
+        }
+        alvo.receberDano(danoCalculado);
+
+        const acao = new Acao(this.nome, alvo.nome, TipoAcao.ATAQUE, danoCalculado);
+        this.registrarAcao(acao);
+        console.log(`${this.nome} atacou ${alvo.nome} causando ${danoCalculado.toFixed(1)} de dano. ${mensagens.join(", ")}`);
+    }
+}
+
+// Mago //
+
+class Mago extends Personagem {
+    constructor(id: number, nome: string, ataque: number, defesa: number, vidaInicial: number = 100) {
+        super(id, nome, ataque, defesa, vidaInicial);
+    }
+
+    atacar(alvo: Personagem): void {
+        const dano = this._ataqueBase;
+        alvo.receberDano(dano);
+        const acao = new Acao(this.nome, alvo.nome, TipoAcao.ATAQUE, dano);
+        this.registrarAcao(acao);
+        console.log(`${this.nome} usou ataque básico em ${alvo.nome}.`);
+    }
+
+    public lancarMagia(alvo: Personagem): void {
+        this._vida -= 10; // Consome 10 pontos de vida para lançar magia
+        console.log(`${this.nome} consumiu 10 pontos de vida para lançar magia!`);
+
+        alvo.receberDano(25); // Causa dano fixo de 25 ignorando defesa
+
+        const acao = new Acao(this.nome, alvo.nome, TipoAcao.MAGIA, 25);
+        this. registrarAcao(acao);
+    }
+}
+
+// Arqueiro // 
+class Arqueiro extends Personagem {
+    constructor(id: number, nome: string, ataque: number, defesa: number, vidaInicial: number = 100) {
+        super(id, nome, ataque, defesa, vidaInicial);
+    }
+
+    atacar(alvo: Personagem): void {
+        for (let i = 1; i <= 2; i++) {
+            if (!alvo.vivo) break;
+
+            let danoCalculado = this._ataqueBase;
+            let tipoAcao = TipoAcao.ATAQUE_DUPLO;
+
+            if(Math.random() < 0.15) {
+                danoCalculado = danoCalculado * 2;
+                let tipoAcao = TipoAcao.CRITICO;
+                console.log(`CRÍTICO!!! Flecha precisa de ${this.nome}!`);
+                
+            }
+
+            alvo.receberDano(danoCalculado);
+
+            const acao = new Acao(this.nome, alvo.nome, tipoAcao, danoCalculado);
+            this.registrarAcao(acao);
+            console.log(`Flecha ${i}: ${this.nome} causou ${danoCalculado.toFixed(1)} de dano.`);
+        }
     }
 }
