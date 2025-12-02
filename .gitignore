@@ -1,0 +1,15 @@
+# Dependências do Node 
+node_modules/
+
+# Arquivos compilados/gerados pelo TypeScript 
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+
+# Arquivos de sistema 
+.DS_Store
+Thumbs.db
+
+# Arquivo de persistência de dados 
+dados.json
