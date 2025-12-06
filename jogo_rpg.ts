@@ -43,7 +43,7 @@ abstract class Personagem {
     get vida(): number { return this._vida; }
     get estaVivo(): boolean { return this._vida > 0;}
 
-    abstract atacar(alvo: Personagem): void; // As subclasses são obrigadas a criarem a própria lógica de ataque
+    abstract atacar(alvo: Personagem): Acao; // As subclasses são obrigadas a criarem a própria lógica de ataque
 
     public receberDano(valor: number): void {
         this._vida -= valor;
@@ -179,4 +179,70 @@ class Arqueiro extends Personagem {
         this.registrarAcao(acao);
         return acao;        
     }
+}
+
+class Batalha {
+    personagens: Personagem[] = [];
+    acoes: Acao[] = [];
+
+    adicionarPersonagem(personagem: Personagem): void {
+        for (const p of this.personagens) {
+            if (p.nome === personagem.nome) {
+                throw new Error("Já existe um personagem com este nome!");
+            }
+        }
+        this.personagens.push(personagem);
+        console.log("✅ Personagem adicionado: " + personagem.nome);
+    }
+    consultarPersonagem(nomeBuscado: string): Personagem {
+        for (const p of this.personagens) {
+            if(p.nome === nomeBuscado)
+                return p;
+        }
+        throw new Error("Personagem não encontrado");
+    }
+
+    turno(atacanteId: number, defensorId: number): Acao[] {
+        let atacante: Personagem | null = null;
+        let defensor: Personagem | null = null;
+
+        for (const p of this.personagens) {
+            if (p.id === atacanteId) atacante = p;
+            if (p.id === defensorId) defensor = p;
+        }
+        if (atacante === null) throw new Error("Atacante não encontrado");
+        if (defensor === null) throw new Error("Defensor não encontrado");
+        if (atacante === defensor) throw new Error("Personagem não pode atacar a si mesmo");
+        if (!atacante.estaVivo) throw new Error ("Personagem morto não pode atacar");
+        if (!defensor.estaVivo) throw new Error ("Personagem morto não pode ser atacado");
+
+        const acao = atacante.atacar(defensor);
+
+        this.acoes.push(acao);
+
+        return [acao];
+    }
+
+    listarPersonagens(): Personagem[] {
+        return this.personagens;
+    }
+    listarAcoes(): Acao[] {
+        return this.acoes;
+    }
+
+    verificarVencerdor(): Personagem | null {
+        let contadorVivos = 0;
+        let ultimoVivo: Personagem | null = null;
+
+        for(const p of this.personagens) {
+            if (p.estaVivo) {
+                contadorVivos++;
+                ultimoVivo = p;
+            }
+        }
+        if (contadorVivos === 1) return ultimoVivo;
+        return null;
+    }
+
+
 }
