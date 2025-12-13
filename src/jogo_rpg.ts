@@ -1,4 +1,4 @@
-import { Batalha } from "./core/batalha"; // Ajustei para Maiúscula para bater com o arquivo
+import { Batalha } from "./core/batalha";
 import { Guerreiro } from "./modelos/Guerreiro";
 import { Mago } from "./modelos/Mago";
 import { Arqueiro } from "./modelos/Arqueiro";
@@ -6,6 +6,8 @@ import { Necromante } from "./modelos/Necromante";
 import { Templario } from "./modelos/Templario";
 import { perguntar, fecharInterface } from "./utils/io";
 import { salvarJogo, carregarJogo } from "./utils/armazenamento";
+
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 async function main() {
     const batalha = new Batalha();
@@ -15,10 +17,8 @@ async function main() {
     console.log("==================================");
 
     carregarJogo(batalha);
-
     
     let rodando = true;
-
     
     while (rodando) {
         console.log("\n---  MENU PRINCIPAL ---");
@@ -28,6 +28,7 @@ async function main() {
         console.log("4. 📜 Ver Histórico de Ações"); 
         console.log("5. 💾 Salvar e Sair");     
         console.log("6. 👼 Menu de Ressurreição (Debug)");    
+        console.log("7. 🤖 Batalha Automática (Battle Royale)");
 
         const op = await perguntar("=> Escolha uma opção: ");
 
@@ -120,7 +121,7 @@ async function main() {
                     salvarJogo(batalha);
                     console.log("Encerrando... Até logo! 👋");
                     fecharInterface();
-                    rodando = false; // 3. Atualiza a flag para encerrar o loop
+                    rodando = false; 
                     break;
 
                 case "6":
@@ -152,6 +153,61 @@ async function main() {
                             (p as any)._vida = (p as any)._vidaMaxima;
                         });
                         console.log("✨ TODOS FORAM REVIVIDOS! NOVA RODADA INICIADA! ✨");
+                    }
+                    break;
+
+                case "7":
+                    let combatentes = batalha.listarPersonagens().filter(p => p.estaVivo);
+                    if (combatentes.length < 2) {
+                        console.log("⚠️  Precisa de pelo menos 2 personagens vivos para iniciar o Battle Royale.");
+                        break;
+                    }
+
+                    console.log("\n===========================================");
+                    console.log("🤖 ⚔️  INICIANDO BATTLE ROYALE AUTOMÁTICO  ⚔️ 🤖");
+                    console.log("===========================================");
+
+                    while (!batalha.verificarVencedor() && combatentes.length > 1) {
+                        
+                        combatentes = batalha.listarPersonagens().filter(p => p.estaVivo);
+                        
+                        if (combatentes.length < 2) break;
+
+                        const indexAtacante = Math.floor(Math.random() * combatentes.length);
+                        const atacante = combatentes[indexAtacante];
+
+                        if (!atacante) break; 
+
+                        const possiveisAlvos = combatentes.filter(p => p.id !== atacante.id);
+                        if (possiveisAlvos.length === 0) break;
+
+                        const indexAlvo = Math.floor(Math.random() * possiveisAlvos.length);
+                        const alvo = possiveisAlvos[indexAlvo];
+
+                        if (!alvo) break;
+
+                        console.log(`\n⏳ ... Sorteando confronto ...`);
+                        await sleep(1000);
+                        
+                        console.log(`>>> 🎲 ${atacante.nome} (ID: ${atacante.id}) decidiu atacar ${alvo.nome} (ID: ${alvo.id})!`);
+                        
+                        batalha.turno(atacante.id, alvo.id);
+
+                        const vivosAgora = batalha.listarPersonagens().filter(p => p.estaVivo).length;
+                        console.log(`(Restam ${vivosAgora} lutadores em pé)`);
+                    }
+
+                    console.log("\n-----------------------------------------");
+                    const campeao = batalha.verificarVencedor();
+                    if (campeao) {
+                        console.log(`🎉🏆 O GRANDE CAMPEÃO DO BATTLE ROYALE É: ${campeao.nome} !!! 🏆🎉`);
+                    } else {
+                        const vivosFinal = batalha.listarPersonagens().filter(p => p.estaVivo);
+                        if(vivosFinal.length === 0) {
+                            console.log(`☠️  A BATALHA TERMINOU EM EMPATE! Todos morreram. ☠️`);
+                        } else {
+                            console.log(`⏹️  Batalha encerrada.`);
+                        }
                     }
                     break;
 
