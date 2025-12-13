@@ -12,7 +12,7 @@ export class Necromante extends Personagem {
         let valorAtaque = this._ataque;
         let msg = `Magia Sombria`;
 
-        if (Math.random() < 0.15) {
+        if (Math.random() < 0.50) {
             this._vida += this._taxaDrenagem;
             if (this._vida > this._vidaMaxima) this._vida = this._vidaMaxima;
             msg += " 💀 (CEIFADOR DE ALMAS: Roubou vida!)";
