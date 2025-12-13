@@ -9,9 +9,14 @@ import { Templario } from "../modelos/Templario";
 
 export function salvarJogo(batalha: Batalha): void {
     try {
-        const dados = JSON.stringify(batalha.listarPersonagens(), null, 2);
-        fs.writeFileSync('dados.json', dados);
-        console.log("💾 Jogo salvo com sucesso em 'dados.json'.");
+        
+        const dados = {
+            personagens: batalha.listarPersonagens(),
+            acoes: batalha.listarAcoes()
+        };
+        
+        fs.writeFileSync('dados.json', JSON.stringify(dados, null, 2));
+        console.log("💾 Jogo salvo com sucesso (Personagens + Histórico) em 'dados.json'.");
     } catch (e) {
         console.log("❌ Erro ao salvar:", e);
     }
@@ -23,6 +28,10 @@ export function carregarJogo(batalha: Batalha): void {
 
         const arquivo = fs.readFileSync('dados.json', 'utf-8');
         const dados = JSON.parse(arquivo);
+
+        const listarPersonagens = Array.isArray(dados) ? dados: dados.personagens;
+
+        const listarAcoes = Array.isArray(dados) ? [] : dados.acoes;
 
         batalha.personagens = []; 
 
@@ -43,6 +52,14 @@ export function carregarJogo(batalha: Batalha): void {
             
             (p as any)._vida = obj._vida; 
             batalha.adicionarPersonagem(p);
+        }
+
+        if (listarAcoes) {
+            const acoesRecuperadas = listarAcoes.map((a:any) => {
+                a.dataHora = new Date(a.dataHora);
+                return a;
+            });
+            batalha.setAcoes(acoesRecuperadas);
         }
         
         batalha.atualizarUltimoId();

@@ -6,6 +6,10 @@ export class Batalha {
     acoes: Acao[] = [];
     _idSequencial: number = 1;
 
+    setAcoes(acoesCarregadas: Acao[]): void {
+        this.acoes = acoesCarregadas;
+    }
+
     gerarId(): number {
         return this._idSequencial++;
     }
