@@ -37,7 +37,7 @@ export abstract class Personagem {
     public receberDanoVerdadeiro(valor: number): void {
         console.log(`   ⚡ DANO VERDADEIRO (Ignorou Defesa)`); 
         this._vida -= valor;
-        if(this._vida < 0) this._vida - 0;
+        if(this._vida < 0) this._vida = 0;
         const percentual = Math.round((this._vida / this._vidaMaxima) * 100);
         console.log(`   💥 ${this._nome} tomou ${valor.toFixed(0)} de dano.`);
         console.log(`   ❤️  Status: ${this._vida}/${this._vidaMaxima} PV (${percentual}%)`);
