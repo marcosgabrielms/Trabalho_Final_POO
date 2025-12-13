@@ -1,4 +1,4 @@
-import { Batalha } from "./core/batalha";
+import { Batalha } from "./core/batalha"; // Ajustei para Maiúscula para bater com o arquivo
 import { Guerreiro } from "./modelos/Guerreiro";
 import { Mago } from "./modelos/Mago";
 import { Arqueiro } from "./modelos/Arqueiro";
@@ -16,7 +16,11 @@ async function main() {
 
     carregarJogo(batalha);
 
-    while (true) {
+    
+    let rodando = true;
+
+    
+    while (rodando) {
         console.log("\n---  MENU PRINCIPAL ---");
         console.log("1. ➕ Criar Personagem");
         console.log("2. ⚔️  Realizar Batalha (Turno)");
@@ -116,7 +120,8 @@ async function main() {
                     salvarJogo(batalha);
                     console.log("Encerrando... Até logo! 👋");
                     fecharInterface();
-                    return;
+                    rodando = false; // 3. Atualiza a flag para encerrar o loop
+                    break;
 
                 case "6":
                     console.log("\n--- 👼 ZONA DE RESSURREIÇÃO (Admin) 👼 ---");
