@@ -2,10 +2,10 @@
 node_modules/
 
 # Arquivos compilados/gerados pelo TypeScript 
-*.js
 *.js.map
 *.d.ts
 *.d.ts.map
+*jogo_rpg.js
 
 # Arquivos de sistema 
 .DS_Store
