@@ -20,9 +20,9 @@ Este projeto consiste em um sistema de batalha por turnos via linha de comando (
 
 Confira o vídeo de demonstração do funcionamento, testes e explicação do código:
 
-**[🔗 Clique aqui para assistir ao vídeo da apresentação]((INSIRA_SEU_LINK_AQUI))**
+**[🔗Trabalho Final POO](https://youtu.be/CeJJ36nByF8)**
 
-*(Link para Google Drive ou YouTube)*
+*(Link do vídeo no YouTube)*
 
 ---
 
