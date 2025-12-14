@@ -35,7 +35,7 @@ export function carregarJogo(batalha: Batalha): void {
 
         batalha.personagens = []; 
 
-        for (const obj of dados) {
+        for (const obj of listarPersonagens) {
             let p: Personagem;
 
             if (obj.hasOwnProperty('_defesa')) { 
