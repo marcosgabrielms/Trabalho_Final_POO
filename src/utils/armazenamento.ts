@@ -63,7 +63,7 @@ export function carregarJogo(batalha: Batalha): void {
         }
         
         batalha.atualizarUltimoId();
-        console.log(`📂 Jogo carregado: ${dados.length} personagens recuperados.`);
+        console.log(`📂 Jogo carregado: ${listarPersonagens.length} personagens recuperados.`);
     } catch (e) {
         console.log("❌ Erro ao carregar:", e);
     }
