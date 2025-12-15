@@ -6,6 +6,8 @@ import { Mago } from "../modelos/Mago";
 import { Arqueiro } from "../modelos/Arqueiro";
 import { Necromante } from "../modelos/Necromante";
 import { Templario } from "../modelos/Templario";
+import { Cidadao } from '../modelos/Cidadao';
+import { Sacerdote } from '../modelos/Sacerdote';
 
 export function salvarJogo(batalha: Batalha): void {
     try {
@@ -46,7 +48,12 @@ export function carregarJogo(batalha: Batalha): void {
                 p = new Necromante(obj._id, obj._nome, obj._ataque, obj._vidaMaxima);
             } else if (obj.hasOwnProperty('_bonusSagrado')) {
                 p = new Templario(obj._id, obj._nome, obj._ataque, obj._vidaMaxima);
+            } else if (obj.hasOwnProperty('_ataqueFraco')) {
+                p = new Cidadao(obj._id, obj._nome, obj._ataque, obj._vidaMaxima);
+            } else if (obj.hasOwnProperty('_taxaCura')) {
+                p = new Sacerdote(obj._id, obj._nome, obj._ataque, obj._vidaMaxima);
             } else { 
+            
                 p = new Mago(obj._id, obj._nome, obj._ataque, obj._vidaMaxima);
             }
             

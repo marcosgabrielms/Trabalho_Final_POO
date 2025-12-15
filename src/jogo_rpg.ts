@@ -7,6 +7,8 @@ import { Templario } from "./modelos/Templario";
 import { Personagem } from "./modelos/Personagem"; 
 import { perguntar, fecharInterface } from "./utils/io";
 import { salvarJogo, carregarJogo } from "./utils/armazenamento";
+import { Cidadao } from "./modelos/Cidadao";
+import { Sacerdote } from "./modelos/Sacerdote";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -38,6 +40,7 @@ function obterDetalhesClasse(p: Personagem): string {
     }
     if (p instanceof Templario) {
         return `(☀️ Templário | Dano Sagrado)`;
+     
     }
     return "";
 }
@@ -71,7 +74,8 @@ async function main() {
                     console.log("\n### Criar Novo Lutador ###");
                     const nome = await perguntar("Nome do Personagem: ");
                     console.log("Classes Clássicas: [1] Guerreiro 🛡️  | [2] Mago ✨  | [3] Arqueiro 🏹");
-                    console.log("Classes Extras:    [4] Necromante 💀 | [5] Templário ☀️");
+                    console.log("Classes Extras:    [4] Necromante 💀 | [5] Templário ☀️ | [6] Cidadão ");
+                    console.log("Classes Extras:    [7] Sacerdote  | [8] (em definição)");
                     const tipo = await perguntar("Escolha a classe: ");
                     
                     const id = batalha.gerarId();
@@ -120,6 +124,20 @@ async function main() {
                         
                         console.log(`✅ Personagem Criado: ${nome} (☀️ Templário | Atq: ${atq})`);
                         batalha.adicionarPersonagem(new Templario(id, nome, atq));
+
+                    }else if (tipo === "6") {
+                        console.log(`\n CIDADÃO selecionado!`);
+                        const atq = await lerInputComLimites("=> Ataque Base (Pancada)", 0, 0);
+                        
+                        console.log(`✅ Personagem Criado: ${nome} (Cidadão | Atq: ${atq})`);
+                        batalha.adicionarPersonagem(new Cidadao(id, nome, atq));
+
+                    } else if (tipo === "7") {
+                    console.log(`\n SACERTDOTE selecionado!`);
+                    const atq = await lerInputComLimites("=> Ataque Base (cura)", 10, 10);
+                    
+                    console.log(`✅ Personagem Criado: ${nome} (SACERDOTE | Atq: ${atq})`);
+                    batalha.adicionarPersonagem(new Sacerdote(id, nome, atq));
 
                     } else {
                         console.log("❌ Tipo inválido!");
