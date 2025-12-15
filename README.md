@@ -141,6 +141,6 @@ trabalho_final_poo/
 │
 ├── 📜 dados.json                 # Arquivo de persistência (gerado automaticamente)
 ├── 📜 package.json               # Dependências do Node.js e scripts
-├── 📜 tsconfig.json              # Configuração do TypeScript
+├── 📜 tsconfig.json            # Configuração do TypeScript
 └── 📜 jest.config.js             # Configuração do Jest
 ```
