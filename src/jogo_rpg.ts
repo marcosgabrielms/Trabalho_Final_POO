@@ -4,10 +4,43 @@ import { Mago } from "./modelos/Mago";
 import { Arqueiro } from "./modelos/Arqueiro";
 import { Necromante } from "./modelos/Necromante";
 import { Templario } from "./modelos/Templario";
+import { Personagem } from "./modelos/Personagem"; 
 import { perguntar, fecharInterface } from "./utils/io";
 import { salvarJogo, carregarJogo } from "./utils/armazenamento";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+async function lerInputComLimites(texto: string, min: number, max: number): Promise<number> {
+    while (true) {
+        const valorInput = await perguntar(`${texto} [Mín: ${min} | Máx: ${max}]: `);
+        const valor = Number(valorInput);
+
+        if (!isNaN(valor) && valor >= min && valor <= max) {
+            return valor;
+        }
+        
+        console.log(`❌ Valor inválido! Por favor, insira um valor entre ${min} e ${max}.`);
+    }
+}
+
+function obterDetalhesClasse(p: Personagem): string {
+    if (p instanceof Guerreiro) {
+        return `(🛡️ Guerreiro | Defesa: ${(p as any)._defesa})`;
+    } 
+    if (p instanceof Arqueiro) {
+        return `(🏹 Arqueiro | Crítico: ${(p as any)._ataqueMultiplo}x)`;
+    }
+    if (p instanceof Mago) {
+        return `(✨ Mago | Dano Verdadeiro)`;
+    }
+    if (p instanceof Necromante) {
+        return `(💀 Necromante | Roubo de Vida)`;
+    }
+    if (p instanceof Templario) {
+        return `(☀️ Templário | Dano Sagrado)`;
+    }
+    return "";
+}
 
 async function main() {
     const batalha = new Batalha();
@@ -41,26 +74,53 @@ async function main() {
                     console.log("Classes Extras:    [4] Necromante 💀 | [5] Templário ☀️");
                     const tipo = await perguntar("Escolha a classe: ");
                     
-                    let atqPadrao = 0;
-                    if(tipo === "4") atqPadrao = 25; 
-                    if(tipo === "5") atqPadrao = 20;
-                    
-                    const atqInput = await perguntar(`Ataque Base (Sugestão: ${atqPadrao || "15-30"}): `);
-                    const atq = Number(atqInput);
                     const id = batalha.gerarId();
 
                     if (tipo === "1") {
-                        const def = Number(await perguntar("Defesa: "));
+                        const PONTOS_GUERREIRO = 50;
+                        console.log(`\n🛡️ GUERREIRO selecionado!`);
+                        console.log(`🔹 Distribua até ${PONTOS_GUERREIRO} pontos entre ATAQUE e DEFESA.`);
+                        
+                        const maxAtaque = 30;
+                        const atq = await lerInputComLimites("=> Quanto em ATAQUE?", 10, maxAtaque);
+                        
+                        const sobraParaDef = PONTOS_GUERREIRO - atq;
+                        const maxDef = Math.min(sobraParaDef, 30); 
+                        
+                        const def = await lerInputComLimites(`=> Quanto em DEFESA? (Máximo disponível: ${maxDef})`, 10, maxDef);
+                        
+                        console.log(`✅ Personagem Criado: ${nome} (🛡️ Guerreiro | Atq: ${atq} | Def: ${def})`);
                         batalha.adicionarPersonagem(new Guerreiro(id, nome, atq, def));
+
                     } else if (tipo === "2") {
+                        console.log(`\n✨ MAGO selecionado! (Dano Verdadeiro / Ignora Defesa)`);
+                        const atq = await lerInputComLimites("=> Ataque Base (Poder Arcano)", 20, 35);
+                        
+                        console.log(`✅ Personagem Criado: ${nome} (✨ Mago | Atq: ${atq})`);
                         batalha.adicionarPersonagem(new Mago(id, nome, atq));
+
                     } else if (tipo === "3") {
-                        const multi = Number(await perguntar("Multiplicador: "));
+                        console.log(`\n🏹 ARQUEIRO selecionado! (Dano Crítico Alto)`);
+                        const atq = await lerInputComLimites("=> Ataque Base (Flecha)", 15, 25);
+                        const multi = await lerInputComLimites("=> Multiplicador de Crítico", 2, 3);
+                        
+                        console.log(`✅ Personagem Criado: ${nome} (🏹 Arqueiro | Atq: ${atq} | Crítico: ${multi}x)`);
                         batalha.adicionarPersonagem(new Arqueiro(id, nome, atq, multi));
+
                     } else if (tipo === "4") {
+                        console.log(`\n💀 NECROMANTE selecionado! (Roubo de Vida)`);
+                        const atq = await lerInputComLimites("=> Ataque Base (Magia Negra)", 20, 35);
+                        
+                        console.log(`✅ Personagem Criado: ${nome} (💀 Necromante | Atq: ${atq})`);
                         batalha.adicionarPersonagem(new Necromante(id, nome, atq));
+
                     } else if (tipo === "5") {
+                        console.log(`\n☀️ TEMPLÁRIO selecionado! (Guerreiro Sagrado Ofensivo)`);
+                        const atq = await lerInputComLimites("=> Ataque Base (Martelo)", 25, 40);
+                        
+                        console.log(`✅ Personagem Criado: ${nome} (☀️ Templário | Atq: ${atq})`);
                         batalha.adicionarPersonagem(new Templario(id, nome, atq));
+
                     } else {
                         console.log("❌ Tipo inválido!");
                     }
@@ -74,7 +134,8 @@ async function main() {
 
                     console.log("\n--- ⚔️  ARENA DE COMBATE ⚔️  ---");
                     batalha.listarPersonagens().forEach(p => {
-                        if (p.estaVivo) console.log(`[ID: ${p.id}] ${p.nome}`);
+                        const detalhes = obterDetalhesClasse(p);
+                        if (p.estaVivo) console.log(`[ID: ${p.id}] ${p.nome} ${detalhes}`);
                     });
 
                     const id1 = Number(await perguntar("ID do Atacante: "));
@@ -103,7 +164,9 @@ async function main() {
                     for (const p of lista) {
                         const barras = "█".repeat(Math.ceil(p.vida / 10));
                         const status = p.estaVivo ? "Vivo" : "Morto 💀";
-                        console.log(`[${p.id}] ${p.nome.padEnd(10)} | Vida: ${p.vida} ${barras} | ${status}`);
+                        const detalhes = obterDetalhesClasse(p);
+                        
+                        console.log(`[${p.id}] ${p.nome.padEnd(10)} | Vida: ${p.vida.toString().padEnd(3)} ${barras} | ${status} ${detalhes}`);
                     }
                     break;
 
@@ -189,7 +252,10 @@ async function main() {
                         console.log(`\n⏳ ... Sorteando confronto ...`);
                         await sleep(1000);
                         
-                        console.log(`>>> 🎲 ${atacante.nome} (ID: ${atacante.id}) decidiu atacar ${alvo.nome} (ID: ${alvo.id})!`);
+                        const detAtacante = obterDetalhesClasse(atacante);
+                        const detAlvo = obterDetalhesClasse(alvo);
+
+                        console.log(`>>> 🎲 ${atacante.nome} ${detAtacante} decidiu atacar ${alvo.nome} ${detAlvo}!`);
                         
                         batalha.turno(atacante.id, alvo.id);
 
